@@ -93,8 +93,14 @@ public class MyView2 extends HorizontalLayout {
 
         showSenbtn.addClickListener(event -> {
             Sentence out4 = WebClient.create().get().uri("http://localhost:8080/getSentence").retrieve().bodyToMono(Sentence.class).block();
-            this.goodSentence.setPlaceholder(out4.goodSentence.toString());
-            this.badSentence.setPlaceholder(out4.badSentence.toString());
+            if (out4 == null){
+                this.goodSentence.setPlaceholder("[]");
+                this.badSentence.setPlaceholder("[]");
+            }else{
+                this.goodSentence.setPlaceholder(out4.goodSentence.toString());
+                this.badSentence.setPlaceholder(out4.badSentence.toString());
+            }
+
         });
     }
 }

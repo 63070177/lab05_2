@@ -54,26 +54,28 @@ public class WordPublisher {
     public String proofSentence(@PathVariable("sentence") String s) {
         boolean bad = false;
         boolean good = false;
+        String out = new String();
         for (String w : s.split(" ")) {
             bad = this.words.badWords.contains(w) || bad;
             good = this.words.goodWords.contains(w) || good;
         }
-        if (bad && good) {
-            rabbit.convertAndSend("FanoutExchange", "", s);
-            return "Found Bad & Good Word";
-        } else if (bad) {
-            rabbit.convertAndSend("DirectExchange", "bad", s);
-            return "Found Bad Word";
-        } else if (good) {
-            rabbit.convertAndSend("DirectExchange", "good", s);
-            return "Found Good Word";
-        }
-        return "";
+        System.out.println(good);
+        System.out.println(bad);
+         if (bad) {
+            rabbit.convertAndSend("Direct", "bad", s);
+            out = "Found Bad Word";
+        }if (good) {
+            rabbit.convertAndSend("Direct", "good", s);
+            out = "Found Good Word";
+        }if (bad && good) {
+            rabbit.convertAndSend("Fanout", "", s);
+            out = "Found Bad & Good Word";}
+        return out;
     }
 
     @GetMapping("/getSentence")
     public Sentence getSentence() {
-        return (Sentence) (rabbit.convertSendAndReceive("DirectExchange", "get", ""));
+        return (Sentence) (rabbit.convertSendAndReceive("Direct", "get", ""));
     }
 
 }
